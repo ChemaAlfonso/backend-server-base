@@ -18,10 +18,11 @@ app.use(bodyParser.json());
 //Importar rutas
 var appRoutes = require('./routes/app');
 var usrRoutes = require('./routes/usuario');
+var loginRoutes = require('./routes/login');
 
 
 //Conexion DB
-mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', ( err, res ) => {
+mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', { useNewUrlParser: true }, ( err, res ) => {
 
     if ( err ) throw err;
     
@@ -31,6 +32,7 @@ mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', ( err, res )
 
 //Rutas
 app.use('/usuario', usrRoutes);
+app.use('/login', loginRoutes);
 app.use('/', appRoutes);
 
 

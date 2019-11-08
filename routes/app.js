@@ -4,7 +4,7 @@ var app = express();
 
 /* 
 
-tipoDePeticion('path', Callback(req, res, next))
+express().tipoDePeticion('path', Callback(req, res, next))
 
 ejemplo
 app.get('/', (req, res, next) => {

@@ -5,6 +5,12 @@ var app = express();
 // Bcrypt
 var bcrypt = require('bcryptjs');
 
+// JWT
+var jwt = require('jsonwebtoken');
+
+// Middlewares
+var authMiddlewares = require('../middlewares/auth');
+
 // =============================
 // Importar modelo de usuario
 // =============================
@@ -33,11 +39,10 @@ app.get('/', (req, res, next) => {
                     usuarios: usrs
                 });
 
-    });
-
-    
+        });    
 
 });
+
 
 // =============================
 // Actualizar usuario
@@ -94,7 +99,7 @@ app.put('/:id', (req, res) => {
 // =============================
 // Crear nuevo usuario
 // =============================
-app.post('/', ( req, res ) => {
+app.post('/', authMiddlewares.vericaToken, ( req, res ) => {
 
     //Respuesta solo con body parser
     var body = req.body;
@@ -120,14 +125,43 @@ app.post('/', ( req, res ) => {
 
         res.status(201).json({
             ok: true,
-            usuario: usuarioGuardado
+            usuario: usuarioGuardado,
+            loggedUser: req.usuario
         });
 
     });
 
-    
-
 });
 
+// =============================
+// Eliminar usuario
+// =============================
+app.delete('/:id', ( req, res ) => {
+    let id = req.params.id;
+
+    Usuario.findByIdAndRemove(id, (err, usuarioEliminado) => {
+
+        if ( err ){
+            return res.status(500).json({
+                ok: false,
+                mensaje: 'Error al borrar usuarios',
+                errors: err
+            }); 
+        }
+
+        if ( !usuarioEliminado ){
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'El usuario no existe',
+                errors: err
+            }); 
+        }
+
+        res.status(200).json({
+            ok: true,
+            usuario: usuarioEliminado
+        });
+    });
+});
 
 module.exports = app;
