@@ -47,7 +47,7 @@ app.get('/', (req, res, next) => {
 // =============================
 // Actualizar usuario
 // =============================
-app.put('/:id', (req, res) => {
+app.put('/:id', authMiddlewares.vericaToken,(req, res) => {
     var id = req.params.id;
     var body = req.body;
 
