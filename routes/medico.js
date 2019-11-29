@@ -14,7 +14,18 @@ var Medico = require('../models/medico');
 // Obtener todos los hospitales
 // =============================
 app.get('/', (req, res, next) => {
+
+    var desde = req.query.desde || 0;
+    desde = Number( desde );
+
     Medico.find( {}, 'nombre usuario hospital')
+
+        .skip(desde)
+        .limit(30)
+        
+    // Recoge los valores de la subconsulta
+    .populate( 'usuario', 'nombre email' )
+    .populate( 'hospital' )
     .exec( (err, medicos ) => {
         if ( err ){
             return res.status(500).json({
@@ -23,11 +34,18 @@ app.get('/', (req, res, next) => {
                 errors: err
             }); 
         }
+        
+        Medico.count({}, (err, conteo) => {
+                    
+            res.status(200).json({
+                ok: true,
+                total: conteo,
+                medicos
+            });
 
-        res.status(200).json({
-            ok: true,
-            medicos
-        });
+        })
+
+
     });
 
 });

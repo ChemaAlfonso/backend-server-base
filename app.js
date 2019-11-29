@@ -21,6 +21,9 @@ var usrRoutes = require('./routes/usuario');
 var loginRoutes = require('./routes/login');
 var hospitalesRoutes = require('./routes/hospital');
 var medicosRoutes = require('./routes/medico');
+var busquedaRoutes = require('./routes/busqueda');
+var uploadRoutes = require('./routes/upload');
+var imagenesRoutes = require('./routes/imagenes');
 
 
 //Conexion DB
@@ -32,11 +35,19 @@ mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', { useNewUrlP
 
 });
 
+// Server-index config
+// var serveIndex = require('serve-index');
+// app.use(express.static(__dirname + '/'))
+// app.use('/uploads', serveIndex(__dirname + '/uploads'));
+
 //Rutas
 app.use('/usuario', usrRoutes);
 app.use('/login', loginRoutes);
 app.use('/hospital', hospitalesRoutes);
 app.use('/medico', medicosRoutes);
+app.use('/busqueda', busquedaRoutes);
+app.use('/upload', uploadRoutes);
+app.use('/img', imagenesRoutes);
 app.use('/', appRoutes);
 
 
