@@ -25,10 +25,10 @@ app.get('/', (req, res, next) => {
     desde = Number( desde );
 
     //Especificación de columnas
-    Usuario.find({}, 'nombre apellidos email img role')
+    Usuario.find({}, 'nombre apellidos email img role google')
 
         .skip(desde)
-        .limit(30)
+        .limit(5)
 
         //Ejecutamos la consulta
         .exec(
@@ -37,7 +37,7 @@ app.get('/', (req, res, next) => {
                 if ( err ){
                     return res.status(500).json({
                         ok: false,
-                        mensaje: 'Error al cargar usuarios',
+                        mensaje: 'Error al cargar usuario',
                         errors: err
                     }); 
                 }
@@ -61,7 +61,7 @@ app.get('/', (req, res, next) => {
 // =============================
 // Actualizar usuario
 // =============================
-app.put('/:id', authMiddlewares.vericaToken,(req, res) => {
+app.put('/:id', [authMiddlewares.vericaToken, authMiddlewares.vericaAdminOrOwn],(req, res) => {
     var id = req.params.id;
     var body = req.body;
 
@@ -70,7 +70,7 @@ app.put('/:id', authMiddlewares.vericaToken,(req, res) => {
         if ( err ){
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error al buscar usuarios',
+                mensaje: 'Error al buscar usuario',
                 errors: err
             }); 
         }
@@ -83,15 +83,16 @@ app.put('/:id', authMiddlewares.vericaToken,(req, res) => {
             });
         }
 
-        usuario.nombre = body.nombre;
-        usuario.email = body.email;
-        usuario.role = body.role;
+        usuario.nombre    = body.nombre;
+        usuario.apellidos = body.apellidos;
+        usuario.email     = body.email;
+        usuario.role      = body.role;
 
         usuario.save( (err, usuarioGuardado ) => {
             if ( err ){
                 return res.status(400).json({
                     ok: false,
-                    mensaje: 'Error al actualizar usuarios',
+                    mensaje: 'Error al actualizar usuario',
                     errors: err
                 }); 
             }
@@ -113,7 +114,7 @@ app.put('/:id', authMiddlewares.vericaToken,(req, res) => {
 // =============================
 // Crear nuevo usuario
 // =============================
-app.post('/', authMiddlewares.vericaToken, ( req, res ) => {
+app.post('/',  ( req, res ) => {
 
     //Respuesta solo con body parser
     var body = req.body;
@@ -132,7 +133,7 @@ app.post('/', authMiddlewares.vericaToken, ( req, res ) => {
         if ( err ){
             return res.status(400).json({
                 ok: false,
-                mensaje: 'Error al crear usuarios',
+                mensaje: 'Error al crear usuario',
                 errors: err
             }); 
         }
@@ -150,7 +151,7 @@ app.post('/', authMiddlewares.vericaToken, ( req, res ) => {
 // =============================
 // Eliminar usuario
 // =============================
-app.delete('/:id', ( req, res ) => {
+app.delete('/:id', [authMiddlewares.vericaToken, authMiddlewares.vericaAdmin], ( req, res ) => {
     let id = req.params.id;
 
     Usuario.findByIdAndRemove(id, (err, usuarioEliminado) => {
@@ -158,7 +159,7 @@ app.delete('/:id', ( req, res ) => {
         if ( err ){
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error al borrar usuarios',
+                mensaje: 'Error al borrar usuario',
                 errors: err
             }); 
         }

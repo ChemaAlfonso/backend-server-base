@@ -22,3 +22,36 @@ exports.vericaToken = (req, res, next) => {
     });
 }
 
+exports.vericaAdmin = (req, res, next) => {
+    
+    let usuario = req.usuario;
+
+    if( usuario.role === 'ADMIN_ROL'){
+        next();
+        return;
+    } else {
+        return res.status(401).json({
+            ok: false,
+            mensaje: 'Token incorrecto',
+            errors: {message: 'No tiene permisos para realizar esta acción'}
+        }); 
+    }
+}
+
+exports.vericaAdminOrOwn = (req, res, next) => {
+    
+    let usuario = req.usuario;
+    var id = req.params.id;
+
+    if( usuario.role === 'ADMIN_ROL' || usuario._id === id){
+        next();
+        return;
+    } else {
+        return res.status(401).json({
+            ok: false,
+            mensaje: 'Token incorrecto',
+            errors: {message: 'No tiene permisos para realizar esta acción'}
+        }); 
+    }
+}
+

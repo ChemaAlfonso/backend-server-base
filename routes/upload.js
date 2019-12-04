@@ -142,7 +142,7 @@ function subirPorTipo( coleccion, id, fileName, res ){
             var lastPath = './uploads/medicos/' + medico.img;
 
             // Elimina la anterior si ya existe
-            if( fs.existsSync( lastPath ) ){
+            if( fs.existsSync( lastPath )  && medico.img.length > 0 ) {
                 fs.unlinkSync( lastPath );
             }
 

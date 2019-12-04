@@ -18,10 +18,10 @@ app.get('/', (req, res, next) => {
     var desde = req.query.desde || 0;
     desde = Number( desde );
 
-    Medico.find( {}, 'nombre usuario hospital')
+    Medico.find( {}, 'nombre usuario img hospital')
 
         .skip(desde)
-        .limit(30)
+        .limit(5)
         
     // Recoge los valores de la subconsulta
     .populate( 'usuario', 'nombre email' )
@@ -49,6 +49,43 @@ app.get('/', (req, res, next) => {
     });
 
 });
+
+// =============================
+// Get medico por id
+// =============================
+app.get('/:id', authMiddlewares.vericaToken, (req, res, next) => {
+   
+    let id   = req.params.id;
+
+    Medico.findById( id )
+    .populate('usuario', 'nombre apellidos email img')
+    .populate('hospital')
+    .exec((err, medicoCargado) => {             
+
+        if ( err ){
+            return res.status(500).json({
+                ok: false,
+                mensaje: 'Error al buscar médicos',
+                errors: err
+            }); 
+        }
+
+        if (!res){
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'En medico con el id ' + id + ' no existe.',
+                errors: {message: 'No existe un medico con ese id'}
+            });
+        }
+
+        res.status(201).json({
+            ok: true,
+            medico: medicoCargado
+        });
+
+    });
+
+})
 
 // =============================
 // Crear medicos

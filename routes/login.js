@@ -13,6 +13,23 @@ const {OAuth2Client} = require('google-auth-library');
 var CLIENT_ID = require('../config/config').CLIENT_ID;
 const client = new OAuth2Client(CLIENT_ID);
 
+
+var mdAuth = require('../middlewares/auth');
+
+// ======================================
+//  Renovar token
+// ======================================
+app.get('/renuevatoken', mdAuth.vericaToken, ( req, res ) => {
+    
+    let token = jwt.sign({ usuario: req.usuario }, SEED,{ expiresIn: 14400 }); // 4 horas
+    
+    return res.status(200).json({
+        ok: true,
+        token
+    });
+
+});
+
 // =============================
 // Importar modelo de usuario
 // =============================
@@ -82,7 +99,8 @@ app.post('/google', async (req, res) => {
                     ok: true,
                     usuario: usuarioDb,
                     id: usuarioDb._id,
-                    token
+                    token,
+                    menu: obtenerMenu( usuarioDb.role )
                 });
             }
 
@@ -109,7 +127,8 @@ app.post('/google', async (req, res) => {
                 res.status(200).json({
                     ok: true,
                     usuario: usr,
-                    token
+                    token,
+                    menu: obtenerMenu( usr.role )
                 });
             });
         }
@@ -139,7 +158,7 @@ app.post('/', ( req, res ) => {
         if( !usuarioDb ){
             return res.status(400).json({
                 ok: false,
-                mensaje: 'Credenciales incorrectas - email',
+                mensaje: 'Credenciales incorrectas',
                 errors: err
             }); 
         }
@@ -147,7 +166,7 @@ app.post('/', ( req, res ) => {
         if( !bcrypt.compareSync( body.password, usuarioDb.password) ){
             return res.status(400).json({
                 ok: false,
-                mensaje: 'Credenciales incorrectas - pass',
+                mensaje: 'Credenciales incorrectas',
                 errors: err
             }); 
         }
@@ -160,10 +179,43 @@ app.post('/', ( req, res ) => {
             ok: true,
             usuario: usuarioDb,
             id: usuarioDb._id,
-            token
+            token,
+            menu: obtenerMenu( usuarioDb.role )
         });
 
     });
 })
+
+
+function obtenerMenu( role ){
+    var menu = [
+        {
+          titulo: 'Principal',
+          icono: 'mdi mdi-gauge',
+          submenu: [
+            {titulo: 'Dashboard', url: '/dashboard'},
+            {titulo: 'Barras de progreso', url: '/progress'},
+            {titulo: 'Graficas', url: '/graficas'},
+            {titulo: 'Promesas', url: '/promesas'},
+            {titulo: 'Rxjs', url: '/rxjs'}
+          ]
+        },
+        {
+          titulo: 'Mantenimientos',
+          icono: 'mdi mdi-folder-lock-open',
+          submenu: [
+            // {titulo: 'Usuarios', url: '/usuarios'},
+            {titulo: 'Medicos', url: '/medicos'},
+            {titulo: 'Hospitales', url: '/hospitales'}
+          ]
+        }
+      ];
+
+      if( role === 'ADMIN_ROL') {
+        menu[1].submenu.unshift( {titulo: 'Usuarios', url: '/usuarios'} )
+      }
+    
+    return menu;
+}
 
 module.exports = app;
